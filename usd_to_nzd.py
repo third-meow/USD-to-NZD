@@ -1,8 +1,9 @@
 import sys
 import json
 import requests
+from requests.exceptions import ConnectionError
 
-# read acess key from file
+# read access key from file
 with open('secretkey.txt') as f:
     access_key = f.readline().strip()
 
@@ -12,15 +13,24 @@ params = {
     'currencies': 'USD,NZD',
 }
 
-# api call
-res = requests.get('http://apilayer.net/api/live', params = params)
+try:
+    # api call
+    res = requests.get('http://apilayer.net/api/live', params=params).json()
 
-# save responce to file
-with open('saved_exch_rate.json', 'w') as f:
-    json.dump(res.json(), f)
+    # save response to file
+    with open('saved_exch_rate.json', 'w') as f:
+        json.dump(res, f)
+
+except ConnectionError:
+    # open last saved response
+    with open('saved_exch_rate.json', 'r') as f:
+        res = json.load(f)
+
+    # warn user
+    print('Warning: cannot access latest exchange rate, using last saved rate')
 
 # calculate exchange rate
-exch_rate = float(res.json()['quotes']['USDNZD']);
+exch_rate = float(res['quotes']['USDNZD'])
 
 # get amount
 amount = float(sys.argv[-1])
@@ -32,4 +42,4 @@ else:
     result = amount * exch_rate
 
 # print result to 2dp
-print(result - (result % 0.01))
+print('{0:.2f}'.format(result))
