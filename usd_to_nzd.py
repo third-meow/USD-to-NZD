@@ -4,7 +4,7 @@ import requests
 from requests.exceptions import ConnectionError
 
 # read access key from file
-with open('secretkey.txt') as f:
+with open('/home/third-meow/src/laptop/my_py/rand_tools/usd_to_nzd/secretkey.txt') as f:
     access_key = f.readline().strip()
 
 # setup parametes dict
